@@ -13,9 +13,23 @@ import type {
 
 const MINIMUM_READABLE_CONTRAST = 4.5;
 const MAXIMUM_CHROMA_SAMPLE = 0.4;
+const DECIMAL_PRECISION = 3;
+const DECIMAL_FACTOR = 10 ** DECIMAL_PRECISION;
 
 function clamp(value: number, minimum: number, maximum: number): number {
+  if (!Number.isFinite(value)) {
+    return minimum;
+  }
+
   return Math.min(Math.max(value, minimum), maximum);
+}
+
+function roundToThreeDecimals(value: number): number {
+  return Number(value.toFixed(DECIMAL_PRECISION));
+}
+
+function truncateToThreeDecimals(value: number): number {
+  return Math.floor(value * DECIMAL_FACTOR) / DECIMAL_FACTOR;
 }
 
 function clampSurfaceSettings(settings: SurfaceSettings): SurfaceSettings {
@@ -41,7 +55,11 @@ function maxChroma(lightness: number, hue: number): number {
 }
 
 function formatOklch(lightness: number, chroma: number, hue: number): string {
-  return `oklch(${lightness.toFixed(3)} ${chroma.toFixed(3)} ${hue})`;
+  const serializedLightness = roundToThreeDecimals(lightness);
+  const gamutSafeChroma = Math.min(chroma, maxChroma(serializedLightness, hue));
+  const serializedChroma = truncateToThreeDecimals(gamutSafeChroma);
+
+  return `oklch(${serializedLightness.toFixed(DECIMAL_PRECISION)} ${serializedChroma.toFixed(DECIMAL_PRECISION)} ${hue})`;
 }
 
 export function clampParameters(parameters: ThemeParameters): ThemeParameters {
