@@ -272,7 +272,7 @@ textarea:focus-visible {
 .preview-form input,
 .preview-form select {
   width: 100%;
-  min-height: 2.25rem;
+  min-height: 2.75rem;
   border: 1px solid var(--input);
   border-radius: var(--shell-radius-small);
   background: var(--background);
@@ -289,7 +289,7 @@ textarea:focus-visible {
 }
 
 .preview-secondary-action {
-  min-height: 2.25rem;
+  min-height: 2.75rem;
   grid-column: 1 / -1;
   border: 0;
   border-radius: var(--shell-radius-small);
@@ -488,6 +488,11 @@ textarea:focus-visible {
   }
 
   .theme-inspector input {
+    font-size: 1rem;
+  }
+
+  .preview-form input,
+  .preview-form select {
     font-size: 1rem;
   }
 }

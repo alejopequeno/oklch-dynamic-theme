@@ -5,6 +5,7 @@ export function PreviewComponents() {
   const workspaceId = useId();
   const workId = useId();
   const contactId = useId();
+  const heroTitleId = useId();
 
   return (
     <div className="preview-content">
@@ -16,9 +17,9 @@ export function PreviewComponents() {
       </nav>
 
       <div className="preview-main">
-        <section className="preview-hero" aria-labelledby="preview-title">
+        <section className="preview-hero" aria-labelledby={heroTitleId}>
           <p className="preview-eyebrow">Independent product studio</p>
-          <h3 id="preview-title">Good systems make room for better ideas.</h3>
+          <h3 id={heroTitleId}>Good systems make room for better ideas.</h3>
           <p className="preview-copy">
             We shape focused digital products for teams doing thoughtful work.
           </p>

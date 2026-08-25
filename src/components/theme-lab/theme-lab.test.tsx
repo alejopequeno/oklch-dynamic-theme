@@ -18,6 +18,29 @@ test("renders isolated light and dark component previews", () => {
   expect(screen.getAllByRole("button", { name: "Continue" })).toHaveLength(2);
 });
 
+test("scopes distinct local token variables to previews with unique labelled headings", () => {
+  render(<ThemeLab />);
+
+  const lightPreview = screen.getByRole("heading", { name: "Light mode" }).closest("article");
+  const darkPreview = screen.getByRole("heading", { name: "Dark mode" }).closest("article");
+  const previewHeadings = screen.getAllByRole("heading", {
+    name: "Good systems make room for better ideas.",
+  });
+
+  if (lightPreview === null || darkPreview === null) {
+    throw new Error("Expected both preview articles to be rendered.");
+  }
+
+  expect(lightPreview.style.getPropertyValue("--background")).toMatch(/^oklch\(/);
+  expect(darkPreview.style.getPropertyValue("--background")).toMatch(/^oklch\(/);
+  expect(lightPreview.style.getPropertyValue("--background")).not.toBe(
+    darkPreview.style.getPropertyValue("--background"),
+  );
+  expect(new Set(previewHeadings.map((heading) => heading.id)).size).toBe(2);
+  expect(previewHeadings[0]?.parentElement).toHaveAttribute("aria-labelledby", previewHeadings[0]?.id);
+  expect(previewHeadings[1]?.parentElement).toHaveAttribute("aria-labelledby", previewHeadings[1]?.id);
+});
+
 test("renders semantic controls in each local preview", () => {
   render(<ThemeLab />);
 
