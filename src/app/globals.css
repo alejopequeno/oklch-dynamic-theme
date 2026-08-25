@@ -16,8 +16,6 @@
   --shell-radius-small: 0.625rem;
   --motion-color: 160ms ease;
   --motion-transform: 120ms ease-out;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
@@ -48,6 +46,8 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
 }
 
 * {
@@ -417,11 +417,24 @@ textarea:focus-visible {
 }
 
 .preview-footer {
+  display: grid;
+  width: 100%;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
   margin-top: 1rem;
-  border-top: 1px solid var(--border);
-  padding-top: 1rem;
   color: var(--muted-foreground);
   font-size: 0.6875rem;
+}
+
+.preview-footer > [data-slot="separator"] {
+  width: 100%;
+}
+
+.preview-footer > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
 }
 
 .theme-inspector {
