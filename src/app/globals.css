@@ -163,6 +163,14 @@ textarea:focus-visible {
   font-size: 0.75rem;
 }
 
+.preview-nav a {
+  display: inline-flex;
+  align-items: center;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  padding-inline: 0.625rem;
+}
+
 .preview-brand {
   font-weight: 750;
   letter-spacing: -0.04em;
