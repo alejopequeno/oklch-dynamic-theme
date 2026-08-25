@@ -13,6 +13,7 @@ import type {
 } from "../../lib/theme/theme-types";
 
 import { ThemeInspector } from "./theme-inspector";
+import { ThemePreview } from "./theme-preview";
 
 type SurfaceField = keyof SurfaceSettings;
 
@@ -77,16 +78,37 @@ export function ThemeLab() {
   }, []);
 
   return (
-    <ThemeInspector
-      copyStatus={copyStatus}
-      css={css}
-      onCopy={onCopy}
-      onParametersChange={setParameters}
-      onReset={onReset}
-      onSurfaceChange={onSurfaceChange}
-      parameters={parameters}
-      resetVersion={resetVersion}
-      warnings={warnings}
-    />
+    <div className="theme-lab">
+      <header className="lab-header">
+        <div>
+          <p className="lab-kicker">Color system study</p>
+          <h1>OKLCH Theme Lab</h1>
+        </div>
+        <p className="lab-intro">
+          Tune a single palette and compare its semantic roles in two isolated interfaces.
+        </p>
+      </header>
+
+      <main className="lab-main">
+        <section aria-label="Theme previews" className="preview-grid">
+          <ThemePreview mode="light" theme={lightTheme} />
+          <ThemePreview mode="dark" theme={darkTheme} />
+        </section>
+      </main>
+
+      <div className="theme-inspector">
+        <ThemeInspector
+          copyStatus={copyStatus}
+          css={css}
+          onCopy={onCopy}
+          onParametersChange={setParameters}
+          onReset={onReset}
+          onSurfaceChange={onSurfaceChange}
+          parameters={parameters}
+          resetVersion={resetVersion}
+          warnings={warnings}
+        />
+      </div>
+    </div>
   );
 }

@@ -10,6 +10,23 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
+test("renders isolated light and dark component previews", () => {
+  render(<ThemeLab />);
+
+  expect(screen.getByRole("heading", { name: "Light mode" })).toBeVisible();
+  expect(screen.getByRole("heading", { name: "Dark mode" })).toBeVisible();
+  expect(screen.getAllByRole("button", { name: "Continue" })).toHaveLength(2);
+});
+
+test("renders semantic controls in each local preview", () => {
+  render(<ThemeLab />);
+
+  expect(screen.getAllByLabelText("Project name")).toHaveLength(2);
+  expect(screen.getAllByLabelText("Workspace")).toHaveLength(2);
+  expect(screen.getAllByText("Live")).toHaveLength(2);
+  expect(screen.getAllByRole("alert")).toHaveLength(2);
+});
+
 test("edits dark lightness without changing the light configuration", async () => {
   const user = userEvent.setup();
   render(<ThemeLab />);
