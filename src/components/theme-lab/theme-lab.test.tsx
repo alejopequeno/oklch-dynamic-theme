@@ -96,6 +96,28 @@ test("resets edited values to the documented defaults", async () => {
   );
 });
 
+test("chooses the base hue through an accessible color wheel", async () => {
+  const user = userEvent.setup();
+  render(<ThemeLab />);
+
+  const wheel = screen.getByRole("slider", { name: "Choose hue" });
+  await user.keyboard("{ArrowRight}");
+
+  expect(wheel).toHaveAttribute("aria-valuemin", "0");
+  expect(wheel).toHaveAttribute("aria-valuemax", "360");
+});
+
+test("increments a numeric control with its stepper", async () => {
+  const user = userEvent.setup();
+  render(<ThemeLab />);
+
+  const hue = screen.getByLabelText("Hue") as HTMLInputElement;
+  const initialValue = Number(hue.value);
+  await user.click(screen.getByRole("button", { name: "Increase Hue" }));
+
+  expect(Number(hue.value)).toBe(initialValue + 1);
+});
+
 test("starts advanced mode controls collapsed", () => {
   render(<ThemeLab />);
 

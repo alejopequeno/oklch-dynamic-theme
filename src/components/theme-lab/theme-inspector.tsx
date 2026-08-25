@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { clampChroma } from "culori";
+import { useMemo, useRef, useState } from "react";
+import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 
 import { MODE_LIMITS, TOKEN_DESCRIPTORS } from "../../lib/theme/theme-config";
 import type {
@@ -10,6 +12,7 @@ import type {
   ThemeToken,
   ThemeWarning,
 } from "../../lib/theme/theme-types";
+import { NumberField as ReuiNumberField, NumberFieldDecrement, NumberFieldGroup, NumberFieldIncrement, NumberFieldInput } from "../reui/number-field";
 
 type SurfaceField = keyof SurfaceSettings;
 
@@ -42,47 +45,49 @@ function clamp(value: number, range: NumericRange): number {
   return Math.min(Math.max(value, range.min), range.max);
 }
 
-function formatNumber(value: number): string {
-  return String(value);
-}
-
-function isCompleteNumber(value: string): boolean {
-  return /^[+-]?(?:\d+(?:\.\d+)?|\.\d+)$/.test(value);
-}
-
 function NumberField({ label, range, value, onChange }: NumberFieldProps) {
-  const [draft, setDraft] = useState(() => formatNumber(value));
-
-  function commit(valueAsText: string): void {
-    const parsed = Number(valueAsText);
-    if (!isCompleteNumber(valueAsText.trim()) || !Number.isFinite(parsed)) {
-      return;
-    }
-
-    const nextValue = clamp(parsed, range);
-    setDraft(formatNumber(nextValue));
-    onChange(nextValue);
-  }
-
   return (
     <label>
       <span>{label}</span>
-      <input
-        aria-label={label}
-        inputMode="decimal"
-        max={range.max}
-        min={range.min}
-        onBlur={() => setDraft(formatNumber(value))}
-        onChange={(event) => {
-          setDraft(event.target.value);
-          commit(event.target.value);
-        }}
-        step={range.step}
-        type="text"
-        value={draft}
-      />
+      <ReuiNumberField max={range.max} min={range.min} onValueChange={(nextValue) => { if (nextValue !== null) { onChange(clamp(nextValue, range)); } }} step={range.step} value={value}>
+        <NumberFieldGroup className="theme-number-field">
+          <NumberFieldInput aria-label={label} />
+          <span className="theme-number-field-actions">
+            <NumberFieldIncrement aria-label={`Increase ${label}`}><ChevronUpIcon /></NumberFieldIncrement>
+            <NumberFieldDecrement aria-label={`Decrease ${label}`}><ChevronDownIcon /></NumberFieldDecrement>
+          </span>
+        </NumberFieldGroup>
+      </ReuiNumberField>
     </label>
   );
+}
+
+function maxChroma(lightness: number, hue: number): number {
+  return clampChroma({ mode: "oklch", l: lightness, c: 0.4, h: hue }, "oklch").c ?? 0;
+}
+
+function HueWheel({ hue, onChange }: { hue: number; onChange: (hue: number) => void }) {
+  const wheelRef = useRef<HTMLDivElement>(null);
+  const [dragging, setDragging] = useState(false);
+  const ring = useMemo(() => {
+    const stops = Array.from({ length: 61 }, (_, index) => {
+      const stopHue = index * 6;
+      const chroma = maxChroma(0.65, stopHue) * 0.72;
+      return `oklch(0.65 ${chroma.toFixed(3)} ${stopHue}) ${stopHue}deg`;
+    });
+    return `conic-gradient(from 0deg, ${stops.join(", ")})`;
+  }, []);
+  const selectHue = (x: number, y: number) => {
+    const box = wheelRef.current?.getBoundingClientRect();
+    if (!box) return;
+    onChange((Math.atan2(x - (box.left + box.width / 2), -(y - (box.top + box.height / 2))) * 180 / Math.PI + 360) % 360);
+  };
+  const radians = hue * Math.PI / 180;
+  const ringCenterline = 41.667;
+  const handleX = 50 + ringCenterline * Math.sin(radians);
+  const handleY = 50 - ringCenterline * Math.cos(radians);
+  const color = `oklch(0.65 ${Math.min(0.16, maxChroma(0.65, hue)).toFixed(3)} ${hue})`;
+  return <div ref={wheelRef} aria-label="Choose hue" aria-valuemax={360} aria-valuemin={0} aria-valuenow={Math.round(hue)} className="hue-wheel" onKeyDown={(event) => { if (["ArrowRight", "ArrowUp"].includes(event.key)) { event.preventDefault(); onChange((hue + 1) % 360); } if (["ArrowLeft", "ArrowDown"].includes(event.key)) { event.preventDefault(); onChange((hue + 359) % 360); } }} onPointerDown={(event) => { event.currentTarget.setPointerCapture(event.pointerId); setDragging(true); selectHue(event.clientX, event.clientY); }} onPointerMove={(event) => dragging && selectHue(event.clientX, event.clientY)} onPointerUp={() => setDragging(false)} role="slider" style={{ background: ring }} tabIndex={0}><span className="hue-wheel-center" style={{ backgroundColor: color }} /><span className="hue-wheel-handle" style={{ backgroundColor: color, left: `${handleX}%`, top: `${handleY}%` }} /></div>;
 }
 
 function modeControlLabel(mode: ThemeMode, token: ThemeToken, descriptorLabel: string, field: SurfaceField): string {
@@ -151,6 +156,7 @@ export function ThemeInspector({
     <aside aria-label="Theme inspector">
       <section aria-labelledby="base-color-heading">
         <h2 id="base-color-heading">Base color</h2>
+        <HueWheel hue={parameters.hue} onChange={(value) => setBaseParameter("hue", value)} />
         <NumberField
           key={`hue-${resetVersion}`}
           label="Hue"
