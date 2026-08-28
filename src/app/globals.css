@@ -56,6 +56,12 @@
 
 html {
   background: var(--shell-background);
+  scrollbar-width: none;
+}
+
+html::-webkit-scrollbar,
+.theme-inspector > aside::-webkit-scrollbar {
+  display: none;
 }
 
 body {
@@ -448,6 +454,7 @@ textarea:focus-visible {
 .theme-inspector > aside {
   max-height: calc(100svh - 3rem);
   overflow-y: auto;
+  scrollbar-width: none;
   border: 1px solid var(--shell-border);
   border-radius: var(--shell-radius-large);
   background: color-mix(in srgb, var(--shell-surface) 94%, transparent);
